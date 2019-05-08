@@ -1,0 +1,83 @@
+﻿@using Microsoft.AspNetCore.Identity
+@model Twatter.ViewModels.PostsListViewModel
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+@*@UserManager.GetUserAsync(User).Result.Id*@
+
+<div class="mb-2 container">
+    <a asp-action="Index" asp-route-toggle="all" class="btn btn-secondary">View All</a>
+    <a asp-action="Index" asp-route-toggle="following" class="btn btn-secondary">View Following</a>
+
+</div>
+
+
+<div class="container">
+    <form asp-action="Create">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+
+        <div class="form-group row d-flex align-items-center">
+
+            <div class="col-10">
+                <textarea asp-for="NewPost.Content" class="form-control mr-0"></textarea>
+                <span class="text-danger"></span>
+            </div>
+
+            <div class="col-2 pl-0">
+                <input type="hidden" asp-for="NewPost.User.Id" value="@UserManager.GetUserAsync(User).Result.Id" />
+                <input type="submit" value="Twat!" class="btn btn-primary " />
+            </div>
+        </div>
+
+
+    </form>
+</div>
+
+
+
+<ul class="list-unstyled" id="postList">
+
+    @foreach (var item in Model.Posts)
+    {
+
+        <li>
+            <div class="container">
+                <!-- trying adjusting zoom level of posts based on score.-->
+                <div class="post box-shadow pb-2 mb-3" style="zoom: 0.5">
+                    <div class="pt-3 pl-4 pr-4 ">
+                        <div class="row d-flex align-items-center">
+                            <img src="@item.User.ProfilePictureURL" class="userProfile img-fluid pl-3"/>
+                            <h6 class="m-0 pl-2">@UserManager.FindByIdAsync(item.UserId).Result.UserName</h6>
+                            <a asp-action="Follow" asp-route-userId="@item.UserId" class="btn btn-primary text-white ml-2 btn-round">Follow</a>
+                        </div>
+                        <div class="">
+                            <p id="postid+@item.Id" class="mt-2" style="font-size: ">@item.Content</p>
+                            <!--to go back to font size changes use the below in the above style option-->
+                            @*@string.Concat(item.FontSize.ToString(), "px")*@
+                            <div class="row pl-3">
+                                <p class="mr-2">Twat Votes: @item.TwatVotes</p>
+                                <p>Retwats: @item.Retwats</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="btn-group col-12 text-center mb-2">
+                        <a asp-controller="Posts" asp-action="LikePost" asp-route-id="@item.Id" class="btn btn-primary col-6 mr-1">You Twat</a>
+                        <!--  <a id="btnLike" class="btn btn-light col-6 mr-1 btnLike">Like</a>   -->
+                        <a asp-action="RetweetPost" asp-route-id="@item.Id" class="btn btn-primary col-6 mr-1">Retwat</a>
+                    </div>
+                </div>
+            </div>
+
+        </li>
+
+
+    }
+
+</ul>
+
